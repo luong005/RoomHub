@@ -1,0 +1,31 @@
+@startuml
+title BIỂU ĐỒ TUẦN TỰ - XEM DANH SÁCH PHÒNG ĐÃ THAM GIA
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam DefaultFontName "Times New Roman"
+skinparam sequence { ArrowColor #333333; ParticipantBorderColor #333333; ParticipantBackgroundColor white; ActorBorderColor #333333; ActorBackgroundColor white; GroupBorderColor #333333; GroupBackgroundColor white }
+
+actor "Người dùng" as User
+boundary "Hệ thống" as System
+control "Server" as Server
+database "DB" as DB
+
+User -> System : 1. Chọn "Phòng đã tham gia"
+System -> Server : 2. GET /api/user_joined (JWT)
+Server -> Server : 3. Xác thực JWT
+alt [JWT hợp lệ]
+  Server -> DB : 4. Tìm RoomConnection theo sender_id\nvà status = JOINED
+  alt [Có phòng đã tham gia]
+    DB --> Server : 5. Danh sách bài đăng, ảnh, chủ phòng
+    Server --> System : 6. Trả danh sách phòng
+    System --> User : 7. Hiển thị danh sách phòng đã tham gia
+  else [Chưa tham gia phòng]
+    DB --> Server : 5a. Danh sách rỗng
+    Server --> System : 6a. Trả danh sách rỗng
+    System --> User : 7a. Hiển thị thông báo chưa có phòng
+  end
+else [JWT không hợp lệ]
+  Server --> System : 4b. Trả lỗi 401
+  System --> User : 5b. Yêu cầu đăng nhập
+end
+@enduml

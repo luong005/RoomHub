@@ -1,0 +1,39 @@
+@startuml
+title BIỂU ĐỒ HOẠT ĐỘNG - THAO TÁC TRONG PHÒNG ĐÃ THAM GIA
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam DefaultFontName "Times New Roman"
+skinparam activity { BackgroundColor white; BorderColor #333333 }
+
+start
+:Người dùng chọn thao tác trong phòng;
+:Hệ thống xác thực JWT\nvà tải RoomConnection;
+if (RoomConnection đang JOINED?) then (Có)
+  if (Người thực hiện là thành viên?) then (Có)
+    :Chọn "Rời phòng";
+    :Kiểm tra RoomConnection thuộc thành viên;
+    if (Có quyền?) then (Có)
+      :Cập nhật trạng thái LEFT;
+      :Giảm currentMembers;
+      :Lưu dữ liệu và tạo thông báo USER_LEFT\ncho chủ phòng;
+      :Trả kết quả rời phòng thành công;
+    else (Không)
+      :Trả lỗi 403;
+    endif
+  else (Chủ phòng)
+    :Chọn thành viên và "Kick";
+    :Kiểm tra người thực hiện là chủ bài đăng;
+    if (Có quyền?) then (Có)
+      :Cập nhật trạng thái KICKED;
+      :Giảm currentMembers;
+      :Lưu dữ liệu và tạo thông báo USER_KICKED\ncho thành viên;
+      :Trả kết quả kick thành công;
+    else (Không)
+      :Trả lỗi 403;
+    endif
+  endif
+else (Không)
+  :Trả lỗi 400/404;
+endif
+stop
+@enduml

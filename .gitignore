@@ -1,0 +1,46 @@
+# ========================
+# Backend
+# ========================
+Roommate_Connection_Platform(APP)-TLS/target/
+Roommate_Connection_Platform(APP)-TLS/.env
+Roommate_Connection_Platform(APP)-TLS/.env.*
+Roommate_Connection_Platform(APP)-TLS/.idea/
+Roommate_Connection_Platform(APP)-TLS/*.iml
+
+# ========================
+# Frontend
+# ========================
+Frontend_app_v0/node_modules/
+Frontend_app_v0/.expo/
+Frontend_app_v0/.expo-test/
+Frontend_app_v0/dist/
+Frontend_app_v0/.env
+Frontend_app_v0/.env.*
+!Frontend_app_v0/.env.example
+
+# Signing keys
+*.jks
+*.keystore
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# ========================
+# IDE
+# ========================
+.idea/
+.vscode/
+*.iml
+
+# ========================
+# Logs
+# ========================
+*.log
+npm-debug.log*
+
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db

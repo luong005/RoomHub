@@ -1,0 +1,62 @@
+@startuml
+title BIỂU ĐỒ HOẠT ĐỘNG ĐĂNG KÝ / ĐĂNG NHẬP\n(Có Security Logging và Rate Limiting)
+
+start
+:Người dùng nhập số điện thoại và mật khẩu;
+
+if (Chức năng?) then (Đăng ký)
+  :Kiểm tra dữ liệu đăng ký;
+  if (Số điện thoại đã tồn tại?) then (Có)
+    :Thông báo lỗi đăng ký;
+    stop
+  else (Không)
+    :Băm mật khẩu bằng BCrypt;
+    :Tạo tài khoản và hồ sơ người dùng;
+    :Thông báo đăng ký thành công;
+    stop
+  endif
+else (Đăng nhập)
+  :Gửi POST /api/login;
+  :Rate-limit filter đếm request theo IP;
+
+  if (IP vượt 20 request / 300 giây?) then (Có)
+    :Ghi Security Event\nLOGIN_IP_RATE_LIMITED (WARN);
+    :Trả HTTP 429\nRetry-After, scope=IP;
+    stop
+  else (Không)
+    :Tìm tài khoản theo số điện thoại;
+    :Kiểm tra chặn theo IP + tài khoản;
+
+    if (Đang bị chặn?) then (Có)
+      :Trả HTTP 429\nRetry-After, scope=IP_PHONE;
+      stop
+    else (Không)
+      :Đối chiếu mật khẩu bằng BCrypt;
+
+      if (Thông tin hợp lệ?) then (Có)
+        :Xóa bộ đếm đăng nhập sai\n(IP + tài khoản);
+        :Tạo access token và refresh token;
+        :Lưu hash refresh token bằng SHA-256;
+        :Ghi Security Event\nLOGIN_SUCCESS (INFO);
+        :Trả token và thông tin người dùng;
+        :Ứng dụng lưu token an toàn\nvà chuyển đến trang chủ;
+        stop
+      else (Không)
+        :Tăng bộ đếm sai\n(IP + tài khoản);
+
+        if (Đủ 5 lần sai trong 300 giây?) then (Có)
+          :Khóa đăng nhập 300 giây;
+          :Ghi Security Event\nLOGIN_FAILED + LOGIN_RATE_LIMITED;
+          :Trả HTTP 429\nRetry-After, scope=IP_PHONE;
+          stop
+        else (Không)
+          :Ghi Security Event\nLOGIN_FAILED (INFO);
+          :Thông báo lỗi đăng nhập (HTTP 401);
+          stop
+        endif
+      endif
+    endif
+  endif
+endif
+
+@enduml

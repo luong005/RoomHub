@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "RoomMate",
+    "slug": "roommate-mobile",
+    "scheme": "roommate",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Cho phép RoomMate chọn ảnh phòng từ thư viện của bạn.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "android": { "package": "com.roommate.mobile" },
+    "experiments": { "typedRoutes": false }
+  }
+}

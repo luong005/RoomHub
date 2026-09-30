@@ -1,0 +1,26 @@
+@startuml
+title BIỂU ĐỒ HOẠT ĐỘNG - XEM DANH SÁCH PHÒNG ĐÃ THAM GIA
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam DefaultFontName "Times New Roman"
+skinparam activity { BackgroundColor white; BorderColor #333333 }
+
+start
+:Người dùng chọn "Phòng đã tham gia";
+:Hệ thống nhận yêu cầu GET /api/user_joined;
+:Xác thực JWT;
+if (JWT hợp lệ?) then (Có)
+  :Tìm RoomConnection theo sender_id\nvà status = JOINED;
+  if (Có dữ liệu?) then (Có)
+    :Lấy thông tin bài đăng, ảnh\nvà chủ phòng;
+    :Trả danh sách phòng đã tham gia;
+    :Hiển thị danh sách phòng;
+  else (Không)
+    :Trả danh sách rỗng;
+    :Hiển thị "Bạn chưa tham gia phòng nào";
+  endif
+else (Không)
+  :Trả lỗi 401 - yêu cầu đăng nhập;
+endif
+stop
+@enduml

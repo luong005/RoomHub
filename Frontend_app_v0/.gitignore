@@ -1,0 +1,14 @@
+node_modules/
+.expo/
+.expo-test/
+dist/
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p8
+*.p12
+*.key
+*.mobileprovision
+npm-debug.log*

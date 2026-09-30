@@ -1,0 +1,44 @@
+@startuml
+title BIỂU ĐỒ TUẦN TỰ - THAO TÁC TRONG PHÒNG ĐÃ THAM GIA
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam DefaultFontName "Times New Roman"
+skinparam sequence { ArrowColor #333333; ParticipantBorderColor #333333; ParticipantBackgroundColor white; ActorBorderColor #333333; ActorBackgroundColor white; GroupBorderColor #333333; GroupBackgroundColor white }
+
+actor "Người dùng" as User
+boundary "Hệ thống" as System
+control "Server" as Server
+database "DB" as DB
+
+alt [Thành viên tự rời phòng]
+  User -> System : 1. Chọn "Rời phòng"
+  System -> Server : 2. PATCH /api/request_join\n{roomConnectionId, status: LEFT}
+  Server -> Server : 3. Xác thực JWT, kiểm tra thành viên\nvà trạng thái JOINED
+  alt [Hợp lệ]
+    Server -> DB : 4. Cập nhật LEFT, giảm currentMembers
+    DB --> Server : 5. Xác nhận lưu
+    Server -> DB : 6. Lưu thông báo USER_LEFT cho chủ phòng
+    DB --> Server : 7. Xác nhận lưu
+    Server --> System : 8. Rời phòng thành công
+    System --> User : 9. Cập nhật giao diện
+  else [Không hợp lệ]
+    Server --> System : 4a. Trả lỗi 400/403/404
+    System --> User : 5a. Hiển thị lỗi
+  end
+else [Chủ phòng kick thành viên]
+  User -> System : 1. Chọn thành viên và "Kick"
+  System -> Server : 2. PATCH /api/request_join\n{roomConnectionId, status: KICKED}
+  Server -> Server : 3. Xác thực JWT, kiểm tra chủ phòng\nvà trạng thái JOINED
+  alt [Hợp lệ]
+    Server -> DB : 4. Cập nhật KICKED, giảm currentMembers
+    DB --> Server : 5. Xác nhận lưu
+    Server -> DB : 6. Lưu thông báo USER_KICKED cho thành viên
+    DB --> Server : 7. Xác nhận lưu
+    Server --> System : 8. Kick thành công
+    System --> User : 9. Cập nhật danh sách thành viên
+  else [Không hợp lệ]
+    Server --> System : 4b. Trả lỗi 400/403/404
+    System --> User : 5b. Hiển thị lỗi
+  end
+end
+@enduml
